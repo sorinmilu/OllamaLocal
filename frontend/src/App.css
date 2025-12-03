@@ -1,0 +1,15 @@
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-container {
+  max-width: 900px;
+  margin: 0 auto;
+}

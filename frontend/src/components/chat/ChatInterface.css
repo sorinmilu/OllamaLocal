@@ -1,0 +1,7 @@
+.chat-interface {
+  height: 100%;
+}
+
+.message-list {
+  min-height: 200px;
+}

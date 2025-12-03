@@ -1,0 +1,10 @@
+.session-tabs .nav-link {
+  min-width: 150px;
+  max-width: 200px;
+}
+
+.session-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
