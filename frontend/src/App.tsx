@@ -287,7 +287,7 @@ function AppContent() {
                   </Button>
                 </div>
                 <div className="sidebar-body flex-grow-1 overflow-auto p-3">
-              <div className="d-grid gap-2">
+                  <div className="d-grid gap-2">
                 <Button 
                   variant="primary" 
                   onClick={() => setShowNewSessionModal(true)}
@@ -358,14 +358,15 @@ function AppContent() {
 
                 <hr />
 
-                {/* Parameters Panel */}
-                {parameters && (
-                  <ParametersPanel
-                    parameters={parameters}
-                    onParametersChange={setParameters}
-                    onReset={handleResetParameters}
-                  />
-                )}
+                    {/* Parameters Panel */}
+                    {parameters && (
+                      <ParametersPanel
+                        parameters={parameters}
+                        onParametersChange={setParameters}
+                        onReset={handleResetParameters}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </Col>
