@@ -1,7 +1,40 @@
 .chat-interface {
   height: 100%;
+  max-height: calc(100vh - 56px); /* Subtract navbar height */
 }
 
 .message-list {
   min-height: 200px;
+}
+
+/* Ensure proper scrolling in message area */
+.chat-interface .overflow-auto {
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Custom scrollbar styling */
+.sidebar-body::-webkit-scrollbar,
+.chat-interface .overflow-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-body::-webkit-scrollbar-track,
+.chat-interface .overflow-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+[data-bs-theme="dark"] .sidebar-body::-webkit-scrollbar-track,
+[data-bs-theme="dark"] .chat-interface .overflow-auto::-webkit-scrollbar-track {
+  background: #2c3034;
+}
+
+.sidebar-body::-webkit-scrollbar-thumb,
+.chat-interface .overflow-auto::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.sidebar-body::-webkit-scrollbar-thumb:hover,
+.chat-interface .overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
