@@ -7,6 +7,9 @@ from typing import List, Optional
 from app.models.database import Session, Message
 from app.models.schemas import CreateSessionRequest, MessageSchema
 from app.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class SessionService:
@@ -122,16 +125,25 @@ class SessionService:
         Returns:
             Created Message object
         """
-        message = Message(
-            session_id=session_id,
-            role=role,
-            content=content,
-            parameters=parameters
-        )
-        self.db.add(message)
-        await self.db.commit()
-        await self.db.refresh(message)
-        return message
+        try:
+            logger.debug(f"Creating message: session={session_id}, role={role}, content_length={len(content)}")
+            message = Message(
+                session_id=session_id,
+                role=role,
+                content=content,
+                parameters=parameters
+            )
+            self.db.add(message)
+            logger.debug(f"Message added to session, committing...")
+            await self.db.commit()
+            logger.debug(f"Commit successful, refreshing message...")
+            await self.db.refresh(message)
+            logger.info(f"Message saved successfully: id={message.id}, role={role}, content_length={len(content)}")
+            return message
+        except Exception as e:
+            logger.error(f"Failed to add message: {str(e)}", exc_info=True)
+            await self.db.rollback()
+            raise
 
     async def get_messages(
         self, 

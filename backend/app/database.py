@@ -5,11 +5,17 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.pool import StaticPool
 from app.config import settings
 from app.models.database import Base
+import logging
 
-# Create async engine
+logger = logging.getLogger(__name__)
+
+# Create async engine with proper SQLite configuration for concurrent writes
 engine = create_async_engine(
     settings.DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    connect_args={
+        "check_same_thread": False,
+        "timeout": 30  # 30 second timeout for locks
+    },
     poolclass=StaticPool,
     echo=settings.DEBUG,
 )

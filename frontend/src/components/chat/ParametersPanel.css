@@ -1,0 +1,25 @@
+.parameters-panel {
+  font-size: 0.9rem;
+}
+
+.parameters-panel .accordion-button {
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+}
+
+.parameters-panel .form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.parameters-panel .form-text {
+  font-size: 0.75rem;
+}
+
+.parameters-panel .form-range {
+  cursor: pointer;
+}
+
+.parameters-panel .accordion-body {
+  padding: 1rem;
+}
