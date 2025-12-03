@@ -7,6 +7,14 @@ from contextlib import asynccontextmanager
 from app.config import settings
 from app.database import init_db
 from app.api import models, chat, sessions, parameters, export
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -14,17 +22,17 @@ async def lifespan(app: FastAPI):
     """Lifespan events for the application."""
     # Startup
     await init_db()
-    print("Database initialized")
+    logger.info("Database initialized")
     yield
     # Shutdown
-    print("Application shutting down")
+    logger.info("Application shutting down")
 
 
-# Create FastAPI app
+# Create FastAPI app with increased limits for large messages
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Configure CORS
@@ -34,6 +42,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    max_age=3600,
 )
 
 # Include routers

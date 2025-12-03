@@ -9,7 +9,9 @@ from app.services.ollama_service import ollama_service
 from app.services.session_service import SessionService
 from app.models.schemas import GenerateRequest, GenerateResponse, MessageSchema
 import json
+import logging
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
@@ -25,12 +27,14 @@ async def generate(
         # Save user message if session_id provided
         if request.session_id:
             user_message = request.messages[-1]
+            logger.info(f"Saving user message for session {request.session_id}, length: {len(user_message.content)}")
             await session_service.add_message(
                 request.session_id,
                 user_message.role,
                 user_message.content,
                 request.parameters.dict()
             )
+            logger.info(f"Successfully saved user message")
         
         # Choose endpoint based on type and streaming
         if request.parameters.stream:
@@ -50,15 +54,24 @@ async def generate(
                                 full_content += chunk["response"]
                             yield json.dumps(chunk) + "\n"
                     
-                    # Save assistant response if session_id provided
+                    # Save assistant response if session_id provided - use new DB session
                     if request.session_id and full_content:
-                        await session_service.add_message(
-                            request.session_id,
-                            "assistant",
-                            full_content
-                        )
+                        try:
+                            from app.database import AsyncSessionLocal
+                            async with AsyncSessionLocal() as new_db:
+                                new_session_service = SessionService(new_db)
+                                logger.info(f"Saving assistant message for session {request.session_id}, length: {len(full_content)}")
+                                await new_session_service.add_message(
+                                    request.session_id,
+                                    "assistant",
+                                    full_content
+                                )
+                                logger.info(f"Successfully saved assistant message")
+                        except Exception as save_error:
+                            logger.error(f"Failed to save assistant message: {str(save_error)}", exc_info=True)
                 except Exception as e:
-                    yield json.dumps({"error": str(e)}) + "\n"
+                    # Log the error but don't fail the stream
+                    logger.error(f"Error in generate_stream: {str(e)}", exc_info=True)
             
             return StreamingResponse(generate_stream(), media_type="application/x-ndjson")
         else:
