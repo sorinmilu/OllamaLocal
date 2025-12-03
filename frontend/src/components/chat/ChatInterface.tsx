@@ -21,6 +21,7 @@ interface ChatInterfaceProps {
   onCreateSession: () => void;
   onCloseSession: (sessionId: string) => void;
   onSendMessage: (content: string) => void;
+  onMessageComplete?: () => void;
 }
 
 export default function ChatInterface({
@@ -32,6 +33,7 @@ export default function ChatInterface({
   onCreateSession,
   onCloseSession,
   onSendMessage,
+  onMessageComplete,
 }: ChatInterfaceProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState('');
@@ -95,6 +97,11 @@ export default function ChatInterface({
               }
             }
           }
+        }
+        
+        // After streaming completes, refresh messages from backend
+        if (onMessageComplete) {
+          onMessageComplete();
         }
       }
     } catch (error) {

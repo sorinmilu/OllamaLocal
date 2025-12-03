@@ -6,6 +6,7 @@ import { Container, Row, Col, Button, Offcanvas, Modal, Form, Spinner, Alert } f
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import ChatInterface from './components/chat/ChatInterface';
 import ParametersPanel from './components/chat/ParametersPanel';
+import ModelManager from './components/chat/ModelManager';
 import { 
   getSessions, 
   createSession, 
@@ -44,6 +45,9 @@ function AppContent() {
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [renameSessionId, setRenameSessionId] = useState<string | null>(null);
   const [renameSessionName, setRenameSessionName] = useState('');
+
+  // Model manager state
+  const [showModelManager, setShowModelManager] = useState(false);
 
   useEffect(() => {
     loadInitialData();
@@ -171,6 +175,16 @@ function AppContent() {
     }
   };
 
+  const handleModelDownloaded = async () => {
+    // Reload models list after download
+    try {
+      const modelsData = await getModels();
+      setModels(modelsData);
+    } catch (err) {
+      console.error('Failed to reload models:', err);
+    }
+  };
+
   const handleSendMessage = (content: string) => {
     // Add user message to UI immediately
     const userMessage: Message = {
@@ -180,6 +194,18 @@ function AppContent() {
       timestamp: new Date().toISOString(),
     };
     setMessages([...messages, userMessage]);
+  };
+
+  const handleMessageComplete = async () => {
+    // Reload session to get the saved messages from backend
+    if (currentSession) {
+      try {
+        const sessionDetail = await getSession(currentSession.id);
+        setMessages(sessionDetail.messages);
+      } catch (err) {
+        console.error('Failed to reload messages:', err);
+      }
+    }
   };
 
   const handleExport = async () => {
@@ -266,6 +292,13 @@ function AppContent() {
                   ➕ New Session
                 </Button>
                 
+                <Button 
+                  variant="success" 
+                  onClick={() => setShowModelManager(true)}
+                >
+                  📥 Download Models
+                </Button>
+                
                 <hr />
                 
                 <div className="mb-3">
@@ -345,6 +378,7 @@ function AppContent() {
                 onCreateSession={() => setShowNewSessionModal(true)}
                 onCloseSession={handleCloseSession}
                 onSendMessage={handleSendMessage}
+                onMessageComplete={handleMessageComplete}
               />
             )}
           </Col>
@@ -449,6 +483,13 @@ function AppContent() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Model Manager Modal */}
+      <ModelManager
+        show={showModelManager}
+        onHide={() => setShowModelManager(false)}
+        onModelDownloaded={handleModelDownloaded}
+      />
     </div>
   );
 }
