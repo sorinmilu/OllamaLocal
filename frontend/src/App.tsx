@@ -5,11 +5,13 @@ import { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Offcanvas, Modal, Form, Spinner, Alert } from 'react-bootstrap';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import ChatInterface from './components/chat/ChatInterface';
+import ParametersPanel from './components/chat/ParametersPanel';
 import { 
   getSessions, 
   createSession, 
   deleteSession, 
   getSession,
+  updateSession,
   getModels,
   getDefaultParameters,
   exportSessionToPDF 
@@ -29,6 +31,7 @@ function AppContent() {
   const [models, setModels] = useState<Model[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [parameters, setParameters] = useState<Parameters | null>(null);
+  const [defaultParameters, setDefaultParameters] = useState<Parameters | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +39,11 @@ function AppContent() {
   const [newSessionName, setNewSessionName] = useState('');
   const [newSessionModel, setNewSessionModel] = useState('');
   const [newSessionEndpoint, setNewSessionEndpoint] = useState<'chat' | 'generate'>('chat');
+
+  // Session rename state
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [renameSessionId, setRenameSessionId] = useState<string | null>(null);
+  const [renameSessionName, setRenameSessionName] = useState('');
 
   useEffect(() => {
     loadInitialData();
@@ -53,6 +61,7 @@ function AppContent() {
       setSessions(sessionsData);
       setModels(modelsData);
       setParameters(defaultParams);
+      setDefaultParameters(defaultParams);
       
       if (modelsData.length > 0) {
         setSelectedModel(modelsData[0].name);
@@ -121,6 +130,44 @@ function AppContent() {
     } catch (err) {
       setError('Failed to delete session');
       console.error(err);
+    }
+  };
+
+  const handleRenameSession = async () => {
+    if (!renameSessionId || !renameSessionName.trim()) return;
+
+    try {
+      await updateSession(renameSessionId, { name: renameSessionName.trim() });
+      
+      // Update sessions list
+      const updatedSessions = sessions.map(s => 
+        s.id === renameSessionId ? { ...s, name: renameSessionName.trim() } : s
+      );
+      setSessions(updatedSessions);
+      
+      // Update current session if it's the one being renamed
+      if (currentSession?.id === renameSessionId) {
+        setCurrentSession({ ...currentSession, name: renameSessionName.trim() });
+      }
+      
+      setShowRenameModal(false);
+      setRenameSessionId(null);
+      setRenameSessionName('');
+    } catch (err) {
+      setError('Failed to rename session');
+      console.error(err);
+    }
+  };
+
+  const openRenameModal = (sessionId: string, currentName: string) => {
+    setRenameSessionId(sessionId);
+    setRenameSessionName(currentName);
+    setShowRenameModal(true);
+  };
+
+  const handleResetParameters = () => {
+    if (defaultParameters) {
+      setParameters({ ...defaultParameters });
     }
   };
 
@@ -245,16 +292,43 @@ function AppContent() {
                   {sessions.map(session => (
                     <div
                       key={session.id}
-                      className={`p-2 rounded mb-1 cursor-pointer ${
+                      className={`d-flex align-items-center p-2 rounded mb-1 ${
                         currentSession?.id === session.id ? 'bg-primary text-white' : 'bg-light'
                       }`}
-                      onClick={() => switchSession(session.id)}
                       style={{ cursor: 'pointer' }}
                     >
-                      <small>{session.name}</small>
+                      <div
+                        className="flex-grow-1"
+                        onClick={() => switchSession(session.id)}
+                      >
+                        <small>{session.name}</small>
+                      </div>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="p-0 ms-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openRenameModal(session.id, session.name);
+                        }}
+                        style={{ color: currentSession?.id === session.id ? 'white' : 'inherit' }}
+                      >
+                        ✏️
+                      </Button>
                     </div>
                   ))}
                 </div>
+
+                <hr />
+
+                {/* Parameters Panel */}
+                {parameters && (
+                  <ParametersPanel
+                    parameters={parameters}
+                    onParametersChange={setParameters}
+                    onReset={handleResetParameters}
+                  />
+                )}
               </div>
             </Offcanvas.Body>
           </Offcanvas>
@@ -334,6 +408,44 @@ function AppContent() {
             disabled={!newSessionName.trim() || !newSessionModel}
           >
             Create
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Rename Session Modal */}
+      <Modal show={showRenameModal} onHide={() => setShowRenameModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Rename Session</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Session Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter new session name"
+                value={renameSessionName}
+                onChange={(e) => setRenameSessionName(e.target.value)}
+                autoFocus
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleRenameSession();
+                  }
+                }}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowRenameModal(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={handleRenameSession}
+            disabled={!renameSessionName.trim()}
+          >
+            Save
           </Button>
         </Modal.Footer>
       </Modal>
