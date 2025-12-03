@@ -17,6 +17,7 @@ export default function ParametersPanel({
   onReset,
 }: ParametersPanelProps) {
   const handleChange = (field: keyof Parameters, value: any) => {
+    // Immediately update parameters
     onParametersChange({
       ...parameters,
       [field]: value,
@@ -28,6 +29,9 @@ export default function ParametersPanel({
       <Accordion.Item eventKey="0">
         <Accordion.Header>⚙️ Generation Parameters</Accordion.Header>
         <Accordion.Body>
+          <div className="alert alert-info py-2 px-3 mb-3" style={{ fontSize: '0.8rem' }}>
+            <strong>✨ Live Preview:</strong> Changes apply immediately to new messages
+          </div>
           <Form>
             {/* Temperature */}
             <Form.Group className="mb-3">

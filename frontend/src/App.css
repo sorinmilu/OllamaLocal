@@ -13,3 +13,44 @@
   max-width: 900px;
   margin: 0 auto;
 }
+
+/* Sidebar styles */
+.sidebar-column {
+  background-color: #f8f9fa;
+  overflow-y: auto;
+  transition: all 0.3s ease-in-out;
+}
+
+[data-bs-theme="dark"] .sidebar-column {
+  background-color: #212529;
+}
+
+.sidebar-content {
+  height: 100%;
+}
+
+.sidebar-header {
+  background-color: #fff;
+  min-height: 60px;
+}
+
+[data-bs-theme="dark"] .sidebar-header {
+  background-color: #2c3034;
+}
+
+.sidebar-body {
+  overflow-y: auto;
+}
+
+/* Responsive sidebar */
+@media (max-width: 767.98px) {
+  .sidebar-column {
+    position: fixed;
+    top: 56px; /* Height of navbar */
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 1040;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+}

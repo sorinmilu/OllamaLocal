@@ -7,6 +7,7 @@ import MessageList from './MessageList';
 import InputArea from './InputArea';
 import SessionTabs from './SessionTabs';
 import ContextIndicator from './ContextIndicator';
+import ParametersDisplay from './ParametersDisplay';
 import { Message, Session } from '../../types/session';
 import { Parameters } from '../../types/parameters';
 import { streamGenerate } from '../../services/api';
@@ -149,6 +150,12 @@ export default function ChatInterface({
           <Row className="flex-shrink-0">
             <Col>
               <ContextIndicator sessionId={currentSession.id} />
+            </Col>
+          </Row>
+
+          <Row className="flex-shrink-0">
+            <Col>
+              <ParametersDisplay parameters={parameters} />
             </Col>
           </Row>
 

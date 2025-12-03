@@ -2,7 +2,7 @@
  * Main application component - fully integrated.
  */
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Offcanvas, Modal, Form, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Modal, Form, Spinner, Alert } from 'react-bootstrap';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import ChatInterface from './components/chat/ChatInterface';
 import ParametersPanel from './components/chat/ParametersPanel';
@@ -269,20 +269,24 @@ function AppContent() {
         </Alert>
       )}
 
-      <Container fluid className="flex-grow-1 overflow-hidden">
-        <Row className="h-100">
+      <Container fluid className="flex-grow-1 overflow-hidden p-0">
+        <Row className="h-100 g-0">
           {/* Sidebar */}
-          <Offcanvas
-            show={showSidebar}
-            onHide={() => setShowSidebar(false)}
-            placement="start"
-            backdrop={false}
-            scroll={true}
-          >
-            <Offcanvas.Header closeButton>
-              <Offcanvas.Title>Menu</Offcanvas.Title>
-            </Offcanvas.Header>
-            <Offcanvas.Body>
+          {showSidebar && (
+            <Col xs={12} md={3} lg={3} xl={2} className="border-end sidebar-column">
+              <div className="sidebar-content h-100 d-flex flex-column">
+                <div className="sidebar-header p-3 border-bottom d-flex justify-content-between align-items-center">
+                  <h5 className="mb-0">Menu</h5>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => setShowSidebar(false)}
+                    className="d-md-none"
+                  >
+                    ✕
+                  </Button>
+                </div>
+                <div className="sidebar-body flex-grow-1 overflow-auto p-3">
               <div className="d-grid gap-2">
                 <Button 
                   variant="primary" 
@@ -362,9 +366,10 @@ function AppContent() {
                     onReset={handleResetParameters}
                   />
                 )}
+                </div>
               </div>
-            </Offcanvas.Body>
-          </Offcanvas>
+            </Col>
+          )}
 
           {/* Main Content */}
           <Col className="h-100">

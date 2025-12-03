@@ -1,0 +1,32 @@
+.parameters-display {
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.parameters-display small {
+  display: block;
+  line-height: 1.6;
+  font-size: 0.8rem;
+}
+
+.parameters-display strong {
+  font-weight: 600;
+  color: #495057;
+}
+
+.parameters-display .badge {
+  font-size: 0.7rem;
+  vertical-align: middle;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .parameters-display {
+  background-color: #212529;
+  border-color: #495057;
+}
+
+[data-bs-theme="dark"] .parameters-display strong {
+  color: #adb5bd;
+}
